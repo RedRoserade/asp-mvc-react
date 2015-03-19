@@ -1,0 +1,15 @@
+{
+  "name": "validator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "validator.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-eslint": "^2.0.2",
+    "eslint": "^0.17.1"
+  }
+}
