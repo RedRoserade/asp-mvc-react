@@ -6,6 +6,12 @@
         <style>
             body {
                 display: flex;
+                flex-flow: column;
+            }
+
+            #container {
+                display: flex;
+                flex-grow: 1;
             }
 
             .box {
@@ -15,8 +21,12 @@
     </head>
     <body>
 
-        <pre class="box" id="results"></pre>
-        <pre class="box" id="object"></pre>
+        <button type="button" id="run">Validate</button>
+
+        <div id="container">
+            <textarea class="box" id="object"></textarea>
+            <pre class="box" id="results"></pre>
+        </div>
 
         <script src="./validator.es5.js"></script>
     </body>

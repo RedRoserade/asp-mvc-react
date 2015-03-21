@@ -4,7 +4,8 @@
         "strict": 0
     },
     "env": {
-        "node": true
+        "node": true,
+        "browser": true
     },
     "rules": {
         "quotes": "single"

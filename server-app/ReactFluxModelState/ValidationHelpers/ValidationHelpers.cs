@@ -27,7 +27,7 @@ namespace ReactFluxModelState.ValidationHelpers
             if (t.IsAssignableFrom(typeof(double)) ||
                 t.IsAssignableFrom(typeof(float)))
             {
-                return "float";
+                return "number";
             }
 
             if (t.IsAssignableFrom(typeof(string)))
