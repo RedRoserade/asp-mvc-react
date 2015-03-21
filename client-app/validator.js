@@ -8,7 +8,7 @@ function isNullOrUndefined(val) {
  * RegExp that is used to extract the generic type name
  * out of an array.
  */
-let genericExpr = (/array<(\w+)>/i);
+let genericExpr = /array<(\w+)>/i;
 
 /**
  * Tests whether the type name is a basic JS type,
@@ -62,7 +62,7 @@ var contentValidations = {
     required(val, spec = { allowEmpty: false }) {
         if (isNullOrUndefined(val)) { return false; }
 
-        if (!spec.allowEmpty) {
+        if (!spec.allowEmpty && (typeof (val) === 'string' || Array.isArray(val))) {
             return val.length > 0;
         }
 
@@ -100,6 +100,8 @@ var contentValidations = {
 };
 /**
  * Validates a value against a set of validations.
+ * @param {object} val
+ * @param {object} validations
  * @return {array} An array of errors. The array will be empty if no errors were found.
  */
 function validateContent(val, validations = {}) {
@@ -146,36 +148,49 @@ function validateProp(name, value, schema) {
 
     let { type, validations } = schema[name];
 
-    if (!validateType(value, type)) {
-        errors.push(`${name} is not of type ${type}.`);
-        valid = false;
-    }
-
-    let contentErrors = validateContent(value, validations);
-    valid = valid && contentErrors.length === 0;
-
-    errors = errors.concat(contentErrors);
-
-    if (!isNullOrUndefined(value) && type.indexOf('<') !== -1) {
-        let [, genericType] = genericExpr.exec(type);
-
-        let arrayErrors = [];
-        let isBase = isBaseType(genericType);
-
-        for (let i = 0; i < value.length; i++) {
-            let item = value[i];
-
-            if (isBase) {
-                var isValidItemType = validateType(item, genericType);
-                arrayErrors.push([isValidItemType]);
-                valid = valid && isValidItemType;
-            } else {
-                let result = validateProps(item, schemas[genericType]);
-                valid = valid && result.valid;
-                arrayErrors.push(result.props);
-            }
+    if (isBaseType(type)) {
+        if (!validateType(value, type)) {
+            errors.push(`${name} is not of type ${type}.`);
+            valid = false;
         }
-        errors.push(arrayErrors);
+
+        let contentErrors = validateContent(value, validations);
+        valid = valid && contentErrors.length === 0;
+        errors = errors.concat(contentErrors);
+
+        if (!isNullOrUndefined(value) && type.indexOf('<') !== -1) {
+            let [, genericType] = genericExpr.exec(type);
+
+            let arrayErrors = [];
+            let isBase = isBaseType(genericType);
+
+            for (let i = 0; i < value.length; i++) {
+                let item = value[i];
+
+                if (isBase) {
+                    var isValidItemType = validateType(item, genericType);
+                    arrayErrors.push([isValidItemType]);
+                    valid = valid && isValidItemType;
+                } else {
+                    let result = validateProps(item, schemas[genericType]);
+                    valid = valid && result.valid;
+                    arrayErrors.push(result.props);
+                }
+            }
+            errors.push(arrayErrors);
+        }
+    } else {
+        let contentErrors = validateContent(value, validations);
+        valid = valid && contentErrors.length === 0;
+
+        errors = errors.concat(contentErrors);
+
+        if (!isNullOrUndefined(value)) {
+            let propResult = validateProps(value, schemas[type]);
+            valid = valid && propResult.valid;
+            errors = errors.concat(propResult.props);
+        }
+
     }
 
     return {
@@ -194,8 +209,14 @@ function findAdditionalSchemas(schema) {
     let additionalSchemasToLoad = [];
 
     for (let prop in schema) {
-        if (schema.hasOwnProperty(prop) && schema[prop].type.indexOf('<') !== -1) {
-            additionalSchemasToLoad.push(genericExpr.exec(schema[prop].type)[1]);
+        if (schema.hasOwnProperty(prop)) {
+            let typeName = schema[prop].type;
+
+            if (typeName.indexOf('<') !== -1) {
+                additionalSchemasToLoad.push(genericExpr.exec(schema[prop].type)[1]);
+            } else if (!isBaseType(typeName)) {
+                additionalSchemasToLoad.push(typeName);
+            }
         }
     }
 
@@ -226,8 +247,13 @@ function loadSchema(schemaName, done) {
         xhr.open('get', `http://localhost:2106/validation/${schemaToLoad}`);
         xhr.setRequestHeader('Accept', 'application/json');
 
-        xhr.addEventListener('load', (e) =>
-            cb(null, schemaToLoad, JSON.parse(e.target.responseText)));
+        xhr.addEventListener('load', (e) => {
+            if (e.target.status === 200) {
+                cb(null, schemaToLoad, JSON.parse(e.target.responseText));
+            } else {
+                cb(new Error(`Schama ${schemaToLoad} not found.`), null);
+            }
+        });
 
         xhr.addEventListener('error', cb);
         xhr.send();
@@ -279,19 +305,14 @@ function validate(obj, schema) {
     let $ = function (query, context = document) { return context.querySelector(query); };
 
     var obj = {
-        name: 'André',
-        pets: [
+        Name: 'André',
+        Email: 'a@a.a',
+        Age: 21,
+        Pets: [
             {
-                name: 'Bobi'
-            },
-            {
-                name: 'Bobi'
-            },
-            {
-                name: 'Bobi'
+                Name: 'Bobi'
             }
-        ],
-        tags: ['a']
+        ]
     };
 
     let objectBox = $('#object'),

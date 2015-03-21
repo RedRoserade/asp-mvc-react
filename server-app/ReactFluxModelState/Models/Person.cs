@@ -28,12 +28,18 @@ namespace ReactFluxModelState.Models
         [Required]
         public string Name { get; set; }
 
-        [MinLength(5)]
-        public string Species { get; set; }
+        [Required]
+        public Species Species { get; set; }
 
         [Range(0, 50)]
         public int Age { get; set; }
 
         public DateTime BirthDate { get; set; }
+    }
+
+    public class Species
+    {
+        [Required]
+        public string Name { get; set; }
     }
 }

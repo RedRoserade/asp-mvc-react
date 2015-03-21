@@ -16,6 +16,7 @@ namespace ReactFluxModelState.Controllers
         public IDictionary<string, Type> Schemas = new Dictionary<string, Type>
             {
                 { "Person", typeof(Person) },
+                { "Species", typeof(Species) },
                 { "Pet", typeof(Pet) }
             };
 
