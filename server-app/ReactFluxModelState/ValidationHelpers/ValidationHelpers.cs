@@ -15,8 +15,6 @@ namespace ReactFluxModelState.ValidationHelpers
             if (t.IsAssignableFrom(typeof(int)) ||
                 t.IsAssignableFrom(typeof(byte)) ||
                 t.IsAssignableFrom(typeof(sbyte)) ||
-                t.IsAssignableFrom(typeof(double)) ||
-                t.IsAssignableFrom(typeof(float)) ||
                 t.IsAssignableFrom(typeof(uint)) ||
                 t.IsAssignableFrom(typeof(long)) ||
                 t.IsAssignableFrom(typeof(ulong)))
