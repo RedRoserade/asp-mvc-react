@@ -47,7 +47,7 @@ namespace ReactFluxModelState.ValidationHelpers
             {
                 return string.Format("array<{0}>",
                     string.Join(",", t.GetGenericArguments()
-                        .Select(a => a.Name)));
+                        .Select(a => GetJavascriptPrototypeName(a))));
             }
 
             return t.Name;

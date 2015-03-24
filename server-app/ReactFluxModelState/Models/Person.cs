@@ -21,6 +21,9 @@ namespace ReactFluxModelState.Models
 
         [Required, MaxLength(5)]
         public ICollection<Pet> Pets { get; set; }
+
+        [Required, MaxLength(5)]
+        public ICollection<string> Tags { get; set; }
     }
 
     public class Pet
