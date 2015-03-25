@@ -43,6 +43,11 @@ namespace ReactFluxModelState.ValidationHelpers
                 return "date";
             }
 
+            if (t.GetType().IsEnum)
+            {
+                return "enum";
+            }
+
             if (typeof(IEnumerable).IsAssignableFrom(t))
             {
                 return string.Format("array<{0}>",
@@ -138,4 +143,6 @@ namespace ReactFluxModelState.ValidationHelpers
             throw new Exception();
         }
     }
+
+
 }
