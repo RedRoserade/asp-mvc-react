@@ -39,6 +39,8 @@ namespace ReactFluxModelState.Controllers
                 .ToDictionary(p => p.Name, p => new ValidationSchema
                 {
                     type = Helpers.GetJavascriptPrototypeName(p.PropertyType),
+                    label = Helpers.GetDisplayName(p),
+                    placeholder = Helpers.GetPlaceholder(p),
                     validations = p.GetCustomAttributes(typeof(ValidationAttribute), false)
                         .Cast<ValidationAttribute>()
                         .Select(v => Helpers.FormatValidation(p, v))
@@ -51,6 +53,8 @@ namespace ReactFluxModelState.Controllers
 
     public class ValidationSchema
     {
+        public string label { get; set; }
+        public string placeholder { get; set; }
         public string type { get; set; }
         public IDictionary<string, object> validations { get; set; }
     }

@@ -1,10 +1,18 @@
 'use strict';
+
+import { schemaHelperMixin } from './schema-mixin';
+
 let React = window.React;
 
 export let Label = React.createClass({
+    mixins: [schemaHelperMixin],
     render() {
-        let { schema } = this.props;
+        let { name } = this.props;
 
-        return <label>{this.props.prop(schema).label}</label>;
+        return (
+            <label htmlFor={this.idFor(name)}>
+                {this.labelFor(name)}
+            </label>
+        );
     }
 });

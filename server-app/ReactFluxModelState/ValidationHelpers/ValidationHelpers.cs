@@ -142,6 +142,31 @@ namespace ReactFluxModelState.ValidationHelpers
 
             throw new Exception();
         }
+
+        public static string GetDisplayName(PropertyInfo p)
+        {
+            var display = p.GetCustomAttribute<DisplayAttribute>();
+
+            if (display == null)
+            {
+                return p.Name;
+            }
+
+            return display.GetName();
+        }
+
+        internal static string GetPlaceholder(PropertyInfo p)
+        {
+            var display = p.GetCustomAttribute<DisplayAttribute>();
+
+            if (display == null)
+            {
+                return p.Name;
+            }
+
+            return display.GetPrompt() ?? "";
+
+        }
     }
 
 

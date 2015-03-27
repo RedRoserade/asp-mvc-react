@@ -1,14 +1,23 @@
 'use strict';
+
+import { schemaHelperMixin } from './schema-mixin';
+import { validationMixin } from './validation-mixin';
 let React = window.React;
 
+
 export let Editor = React.createClass({
+    mixins: [schemaHelperMixin, validationMixin],
     render() {
-        let { schema } = this.props;
-        let propAttributes = this.props.prop(schema);
-        // let validationResult = this.props.prop(this.props.model);
+        let { name, model } = this.props;
 
         return (
-            <input type="text" placeholder={propAttributes.placeholder} />
+            <input
+                defaultValue={model[name]}
+                type="text"
+                id={this.idFor(name)}
+                aria-invalid={!this.isValidField(name)}
+                placeholder={this.placeholderFor(name)}
+                name={this.nameFor(name)} />
         );
     }
 });

@@ -14,5 +14,9 @@
     "babel-loader": "^4.2.0",
     "eslint": "^0.17.1",
     "webpack": "^1.7.3"
+  },
+  "dependencies": {
+    "browser-request": "^0.3.3",
+    "underscore": "^1.8.2"
   }
 }

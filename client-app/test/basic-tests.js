@@ -1,6 +1,6 @@
 'use strict';
 
-import { validate, validateAsync, loadSchema } from 'validator';
+import { validate, validateAsync, loadSchema, flattenModelState } from 'validator';
 
 let $ = function (query, context = document) { return context.querySelector(query); };
 
@@ -28,7 +28,7 @@ function doValidation() {
         loadSchema('Person', (err, schema) => {
             if (err) { throw err; }
 
-            resultBox.innerText = JSON.stringify(validate(obj, schema), null, '  ');
+            resultBox.innerText = JSON.stringify(flattenModelState(validate(obj, schema)), null, '  ');
 
         });
 

@@ -9,6 +9,7 @@ namespace ReactFluxModelState.Models
     public class Person
     {
         [Required]
+        [Display(Name = "Nome da pessoa", Prompt = "O nome da pessoa, ex: André")]
         public string Name { get; set; }
 
         [Range(0, 200)]

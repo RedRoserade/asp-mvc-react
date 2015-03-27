@@ -1,13 +1,17 @@
 'use strict';
 
-import { isBaseType, isNullOrUndefined } from './helpers';
+import { isBaseType, isNullOrUndefined, flattenObject } from './helpers';
 import { validateContent } from './content-validations';
 import { validateType, extractType } from './type-validations';
+
+export function flattenModelState(obj) {
+    return flattenObject(obj);
+}
 
 /**
  * Schema cache.
  */
-var schemas = {};
+export let schemas = {};
 
 function validateProps(object, schema) {
     var props = {},
@@ -172,12 +176,12 @@ export function loadSchema(schemaName, done) {
 export function validate(obj, schema) {
     let result = {
         valid: true,
-        validationResult: {}
+        modelState: {}
     };
 
     let validation = validateProps(obj, schema);
 
-    result.validationResult = validation.props;
+    result.modelState = validation.props;
     result.valid = validation.valid;
 
     return result;
