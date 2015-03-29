@@ -161,7 +161,7 @@ namespace ReactFluxModelState.ValidationHelpers
 
             if (display == null)
             {
-                return p.Name;
+                return "";
             }
 
             return display.GetPrompt() ?? "";

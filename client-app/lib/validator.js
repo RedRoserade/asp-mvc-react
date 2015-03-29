@@ -1,12 +1,11 @@
 'use strict';
 
-import { isBaseType, isNullOrUndefined, flattenObject } from './helpers';
+import { isBaseType, isNullOrUndefined, navigateSafely } from './helpers';
 import { validateContent } from './content-validations';
 import { validateType, extractType } from './type-validations';
 
-export function flattenModelState(obj) {
-    return flattenObject(obj);
-}
+
+export function navigateSafely(f) { return navigateSafely(f); }
 
 /**
  * Schema cache.

@@ -26,6 +26,9 @@ export function schemaLoaderMixin(schemaName) {
                 modelState: result.modelState,
                 valid: result.valid
             }, cb);
+        },
+        setStateAndValidate(stateChange, cb) {
+            this.setState(stateChange, this.validate.bind(this, cb));
         }
     };
 }
@@ -64,10 +67,13 @@ export let schemaHelperMixin = {
     placeholderFor(name) {
         var { schema } = this.state || this.props;
 
-        if (!schema || !schema[name]) {
+        if (!schema || !schema[name] || !schema[name].placeholder) {
             return '';
         }
 
         return schema[name].placeholder;
+    },
+    joinPrefixes(...prefixes) {
+        return prefixes.join('.');
     }
 };

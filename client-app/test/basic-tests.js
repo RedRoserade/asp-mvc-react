@@ -28,7 +28,7 @@ function doValidation() {
         loadSchema('Person', (err, schema) => {
             if (err) { throw err; }
 
-            resultBox.innerText = JSON.stringify(flattenModelState(validate(obj, schema)), null, '  ');
+            resultBox.innerText = JSON.stringify(validate(obj, schema), null, '  ');
 
         });
 

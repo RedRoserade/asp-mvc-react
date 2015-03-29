@@ -23,8 +23,8 @@ namespace ReactFluxModelState.Models
         [Required, MaxLength(5)]
         public ICollection<Pet> Pets { get; set; }
 
-        [Required, MaxLength(5)]
-        public ICollection<string> Tags { get; set; }
+        //[Required, MaxLength(5)]
+        //public ICollection<string> Tags { get; set; }
     }
 
     public class Pet
@@ -43,7 +43,8 @@ namespace ReactFluxModelState.Models
 
     public class Species
     {
-        [Required]
+        [Display(Name = "Espécie")]
+        [Required(ErrorMessage = "Diga-nos a espécie do animal")]
         public string Name { get; set; }
     }
 }

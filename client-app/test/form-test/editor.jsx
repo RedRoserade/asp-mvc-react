@@ -7,13 +7,19 @@ let React = window.React;
 
 export let Editor = React.createClass({
     mixins: [schemaHelperMixin, validationMixin],
+    getDefaultProps() {
+        return {
+            onChange() { /* No-op */ }
+        };
+    },
     render() {
         let { name, model } = this.props;
 
         return (
             <input
-                defaultValue={model[name]}
+                value={model[name]}
                 type="text"
+                onChange={this.props.onChange}
                 id={this.idFor(name)}
                 aria-invalid={!this.isValidField(name)}
                 placeholder={this.placeholderFor(name)}

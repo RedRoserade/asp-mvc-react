@@ -14,15 +14,15 @@ export let validationMixin = {
     },
 
     validationMessageFor(name) {
-        let { modelState, prefix } = this.state || this.props;
+        let { modelState/*, prefix*/ } = this.state || this.props;
 
-        prefix = prefix ? prefix + '.' : '';
+        // prefix = prefix ? prefix + '.' : '';
 
-        if (!modelState || !modelState[prefix + name]) {
+        if (!modelState || !modelState[/*prefix + */name]) {
             return [];
         }
 
-        let errors = modelState[prefix + name];
+        let errors = modelState[/*prefix + */name];
 
         return _.union(errors.typeErrors, errors.validationErrors);
     }

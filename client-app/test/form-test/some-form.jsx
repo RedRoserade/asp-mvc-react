@@ -1,15 +1,67 @@
 'use strict';
 
-import { validate, validateAsync, loadSchema, schemas } from 'validator';
+import { validate, validateAsync, loadSchema, schemas, navigateSafely } from 'validator';
 import { Label } from './label.jsx';
 import { Fieldset } from './fieldset.jsx';
 import { Editor } from './editor.jsx';
 import { ValidationMessage } from './validation-message.jsx';
 import request from 'browser-request';
-import { schemaLoaderMixin } from './schema-mixin';
+import { schemaLoaderMixin, schemaHelperMixin } from './schema-mixin';
 import _ from 'underscore';
+import { FormGroup } from './form-group.jsx';
 
 let React = window.React;
+let { update } = React.addons;
+
+let SpeciesEditor = React.createClass({
+    onChange(changedProp, e) {
+        this.props.onChange(changedProp, e);
+    },
+    render() {
+        return (
+            <FormGroup {...this.props}
+                onChange={this.onChange.bind(this, 'Name')}
+                name="Name" />
+        );
+    }
+});
+
+let PetEditor = React.createClass({
+    mixins: [schemaHelperMixin],
+    handleChange(changedProp, evt) {
+
+        this.props.onChange(changedProp, evt.target.value);
+
+        evt.preventDefault();
+        evt.stopPropagation();
+    },
+    handleSpeciesChange(changedProp, evt) {
+        this.props.onChange('Species', { [changedProp]: evt.target.value });
+
+        evt.preventDefault();
+        evt.stopPropagation();
+    },
+    render() {
+        return (
+            <div>
+                <FormGroup {...this.props}
+                    onChange={this.handleChange.bind(this, 'Name')}
+                    name="Name" />
+                <FormGroup {...this.props}
+                    onChange={this.handleChange.bind(this, 'Age')}
+                    name="Age" />
+                <fieldset>
+                    <SpeciesEditor {...this.props}
+                        onChange={this.handleSpeciesChange}
+                        modelState={navigateSafely(() => this.props.modelState.Species.propertyErrors) || null}
+                        model={this.props.model.Species}
+                        prefix={this.joinPrefixes(this.props.prefix, 'Species')}
+                        schema={schemas.Species} />
+                </fieldset>
+            </div>
+        );
+    }
+});
 
 export let SomeForm = React.createClass({
     mixins: [schemaLoaderMixin('Person')],
@@ -25,7 +77,7 @@ export let SomeForm = React.createClass({
     },
     addPet() {
         let updatedModel = React.addons.update(this.state.model, {
-            Pets: { $push: [{ Name: '' }] }
+            Pets: { $push: [{ Name: '', Species: { Name: 'Olá' } }] }
         });
 
         this.setState({
@@ -36,51 +88,62 @@ export let SomeForm = React.createClass({
         let name = e.target.name,
             value = e.target.value;
 
-        console.log(this.state.model);
-
-        let updatedModel = React.addons.update(this.state.model, {
+        let updatedModel = update(this.state.model, {
             $merge: { [name]: value }
         });
 
-        console.log(updatedModel);
-
-        this.setState({
+        this.setStateAndValidate({
             model: updatedModel
-        }, this.validate);
+        });
+    },
+    handlePetChange(petIndex, changedProp, newValue) {
+
+        let updatedModel = update(this.state.model, {
+            Pets: {
+                [petIndex]: {
+                    $merge: { [changedProp]: newValue }
+                }
+            }
+        });
+
+        this.setStateAndValidate({
+            model: updatedModel
+        });
+    },
+    renderPets() {
+        let petModelState = navigateSafely(() => this.state.modelState.Pets.itemErrors) || [];
+
+        return _.map(this.state.model.Pets, (p, i) =>
+            <PetEditor
+                modelState={petModelState[i]}
+                model={p}
+                onChange={this.handlePetChange.bind(this, i)}
+                key={`Pets[${i}]`}
+                prefix={`Pets[${i}]`}
+                schema={schemas.Pet} />);
+    },
+    handleSubmit(e) {
+        if (!this.state.valid) {
+            e.preventDefault();
+        }
+
+        console.log(this.state.model);
     },
     render() {
         return (
-            <form noValidate onChange={this.handleChange}>
-                <Fieldset>
-                    <Label {...this.state} name="Name" />
-                    <div>
-                        <Editor {...this.state} name="Name" />
-                        <ValidationMessage {...this.state} name="Name" />
-                    </div>
-                </Fieldset>
+            <form noValidate onChange={this.handleChange} onSubmit={this.handleSubmit}>
 
-                <Fieldset>
-                    <Label {...this.state} name="Email" />
-                    <div>
-                        <Editor {...this.state} name="Email" />
-                        <ValidationMessage {...this.state} name="Email" />
-                    </div>
-                </Fieldset>
+                <FormGroup {...this.state} name="Name" />
+                <FormGroup {...this.state} name="Email" />
 
-                {_.map(this.state.model.Pets, (p, i) =>
-                    <Fieldset key={`Pets[${i}]`}
-                        schema={schemas.Pet} prefix={`Pets[${i}]`}>
-                        <Label {...this.state} name="Name" />
-                        <Fieldset>
-                            <Editor {...this.state} name="Name" />
-                            <ValidationMessage {...this.state} name="Name" />
-                        </Fieldset>
-                    </Fieldset>
-                )}
+                <fieldset>
+                    {this.renderPets()}
 
-                <button type="button" onClick={this.addPet}>
-                    Adicionar animal de estimação
-                </button>
+                    <button type="button" onClick={this.addPet}>
+                        Adicionar animal de estimação
+                    </button>
+                </fieldset>
+                <button type="submit" disabled={!this.state.valid}>Submeter</button>
             </form>
         );
     }
