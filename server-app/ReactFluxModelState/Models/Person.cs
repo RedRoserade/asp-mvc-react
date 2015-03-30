@@ -39,6 +39,8 @@ namespace ReactFluxModelState.Models
         public int Age { get; set; }
 
         public DateTime BirthDate { get; set; }
+
+
     }
 
     public class Species
@@ -46,5 +48,15 @@ namespace ReactFluxModelState.Models
         [Display(Name = "Espécie")]
         [Required(ErrorMessage = "Diga-nos a espécie do animal")]
         public string Name { get; set; }
+
+        public SpeciesType Type { get; set; }
+    }
+
+    public enum SpeciesType
+    {
+        [Display(Name = "Mamífero")]
+        Mammal,
+        [Display(Name = "Réptil")]
+        Reptile
     }
 }

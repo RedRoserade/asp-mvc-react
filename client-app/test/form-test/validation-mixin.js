@@ -25,5 +25,17 @@ export let validationMixin = {
         let errors = modelState[/*prefix + */name];
 
         return _.union(errors.typeErrors, errors.validationErrors);
+    },
+    /**
+     * Returns the model state of a prop.
+     * @param {string} name The name of the prop.
+     * @returns {object}
+     */
+    getModelState(name) {
+        let { modelState } = this.state || this.props;
+
+        if (!modelState || !modelState[name]) { return {}; }
+
+        return modelState[name].itemErrors || modelState[name].propertyErrors;
     }
 };

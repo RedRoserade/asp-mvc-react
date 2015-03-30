@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactFluxModelState.Controllers;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -43,7 +44,7 @@ namespace ReactFluxModelState.ValidationHelpers
                 return "date";
             }
 
-            if (t.GetType().IsEnum)
+            if (t.IsEnum)
             {
                 return "enum";
             }
@@ -143,7 +144,7 @@ namespace ReactFluxModelState.ValidationHelpers
             throw new Exception();
         }
 
-        public static string GetDisplayName(PropertyInfo p)
+        public static string GetDisplayName(MemberInfo p)
         {
             var display = p.GetCustomAttribute<DisplayAttribute>();
 
@@ -168,6 +169,4 @@ namespace ReactFluxModelState.ValidationHelpers
 
         }
     }
-
-
 }

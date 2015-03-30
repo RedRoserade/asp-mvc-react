@@ -13,7 +13,7 @@ export function isNullOrUndefined(val) {
  * @param {string} typeName
  */
 export function isBaseType(typeName) {
-    return (/string|number|integer|array|date/).test(typeName);
+    return (/string|number|integer|array|date|enum/).test(typeName);
 }
 
 export function navigateSafely(f) {

@@ -4,9 +4,6 @@ import { isBaseType, isNullOrUndefined, navigateSafely } from './helpers';
 import { validateContent } from './content-validations';
 import { validateType, extractType } from './type-validations';
 
-
-export function navigateSafely(f) { return navigateSafely(f); }
-
 /**
  * Schema cache.
  */
@@ -136,7 +133,7 @@ export function loadSchema(schemaName, done) {
             if (e.target.status === 200) {
                 cb(null, schemaToLoad, JSON.parse(e.target.responseText));
             } else {
-                cb(new Error(`Schama ${schemaToLoad} not found.`), null);
+                cb(new Error(`Schema ${schemaToLoad} not found.`), null);
             }
         });
 

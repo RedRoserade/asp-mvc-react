@@ -9,37 +9,37 @@ import request from 'browser-request';
 import { schemaLoaderMixin, schemaHelperMixin } from './schema-mixin';
 import _ from 'underscore';
 import { FormGroup } from './form-group.jsx';
+import { validationMixin } from './validation-mixin';
+import EnumDropDownList from './enum-dropdown-list.jsx';
 
 let React = window.React;
 let { update } = React.addons;
 
 let SpeciesEditor = React.createClass({
-    onChange(changedProp, e) {
-        this.props.onChange(changedProp, e);
+    onChange(changedProp, value) {
+        this.props.onChange(changedProp, value);
     },
     render() {
         return (
-            <FormGroup {...this.props}
-                onChange={this.onChange.bind(this, 'Name')}
-                name="Name" />
+            <div>
+                <FormGroup {...this.props}
+                    onChange={this.onChange.bind(this, 'Name')}
+                    name="Name" />
+                <EnumDropDownList {...this.props}
+                    onChange={this.onChange.bind(this, 'Type')}
+                    name="Type" />
+            </div>
         );
     }
 });
 
 let PetEditor = React.createClass({
-    mixins: [schemaHelperMixin],
-    handleChange(changedProp, evt) {
-
-        this.props.onChange(changedProp, evt.target.value);
-
-        evt.preventDefault();
-        evt.stopPropagation();
+    mixins: [schemaHelperMixin, validationMixin],
+    handleChange(changedProp, value) {
+        this.props.onChange(changedProp, value);
     },
-    handleSpeciesChange(changedProp, evt) {
-        this.props.onChange('Species', { [changedProp]: evt.target.value });
-
-        evt.preventDefault();
-        evt.stopPropagation();
+    handleSpeciesChange(changedProp, value) {
+        this.props.onChange('Species', { [changedProp]: value });
     },
     render() {
         return (
@@ -53,7 +53,7 @@ let PetEditor = React.createClass({
                 <fieldset>
                     <SpeciesEditor {...this.props}
                         onChange={this.handleSpeciesChange}
-                        modelState={navigateSafely(() => this.props.modelState.Species.propertyErrors) || null}
+                        modelState={this.getModelState('Species')}
                         model={this.props.model.Species}
                         prefix={this.joinPrefixes(this.props.prefix, 'Species')}
                         schema={schemas.Species} />
@@ -64,7 +64,7 @@ let PetEditor = React.createClass({
 });
 
 export let SomeForm = React.createClass({
-    mixins: [schemaLoaderMixin('Person')],
+    mixins: [schemaLoaderMixin('Person'), validationMixin],
     getDefaultProps() {
         return {};
     },
@@ -76,18 +76,15 @@ export let SomeForm = React.createClass({
         };
     },
     addPet() {
-        let updatedModel = React.addons.update(this.state.model, {
+        let updatedModel = update(this.state.model, {
             Pets: { $push: [{ Name: '', Species: { Name: 'Olá' } }] }
         });
 
-        this.setState({
+        this.setStateAndValidate({
             model: updatedModel
-        }, this.validate);
+        });
     },
-    handleChange(e) {
-        let name = e.target.name,
-            value = e.target.value;
-
+    handleChange(name, value) {
         let updatedModel = update(this.state.model, {
             $merge: { [name]: value }
         });
@@ -111,11 +108,9 @@ export let SomeForm = React.createClass({
         });
     },
     renderPets() {
-        let petModelState = navigateSafely(() => this.state.modelState.Pets.itemErrors) || [];
-
         return _.map(this.state.model.Pets, (p, i) =>
             <PetEditor
-                modelState={petModelState[i]}
+                modelState={this.getModelState('Pets')[i]}
                 model={p}
                 onChange={this.handlePetChange.bind(this, i)}
                 key={`Pets[${i}]`}
@@ -131,17 +126,23 @@ export let SomeForm = React.createClass({
     },
     render() {
         return (
-            <form noValidate onChange={this.handleChange} onSubmit={this.handleSubmit}>
-
-                <FormGroup {...this.state} name="Name" />
-                <FormGroup {...this.state} name="Email" />
-
+            <form noValidate onSubmit={this.handleSubmit}>
                 <fieldset>
-                    {this.renderPets()}
+                    <FormGroup {...this.state}
+                        onChange={this.handleChange.bind(this, 'Name')}
+                        name="Name" />
+                    <FormGroup {...this.state}
+                        onChange={this.handleChange.bind(this, 'Email')}
+                        name="Email" />
 
-                    <button type="button" onClick={this.addPet}>
-                        Adicionar animal de estimação
-                    </button>
+                    <fieldset>
+                        {this.renderPets()}
+
+                        <button type="button" onClick={this.addPet}>
+                            Adicionar animal de estimação
+                        </button>
+                    </fieldset>
+                    <ValidationMessage {...this.state} name="Pets" />
                 </fieldset>
                 <button type="submit" disabled={!this.state.valid}>Submeter</button>
             </form>

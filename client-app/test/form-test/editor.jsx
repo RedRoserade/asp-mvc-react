@@ -12,6 +12,9 @@ export let Editor = React.createClass({
             onChange() { /* No-op */ }
         };
     },
+    handleChange(e) {
+        this.props.onChange(e.target.value);
+    },
     render() {
         let { name, model } = this.props;
 
@@ -19,7 +22,7 @@ export let Editor = React.createClass({
             <input
                 value={model[name]}
                 type="text"
-                onChange={this.props.onChange}
+                onChange={this.handleChange}
                 id={this.idFor(name)}
                 aria-invalid={!this.isValidField(name)}
                 placeholder={this.placeholderFor(name)}
