@@ -17,7 +17,12 @@ let { update } = React.addons;
 
 let SpeciesEditor = React.createClass({
     onChange(changedProp, value) {
-        this.props.onChange(changedProp, value);
+        let updatedModel = update(this.props.model, {
+            $merge: {
+                [changedProp]: value
+            }
+        });
+        this.props.onChange(updatedModel);
     },
     render() {
         return (
@@ -36,10 +41,13 @@ let SpeciesEditor = React.createClass({
 let PetEditor = React.createClass({
     mixins: [schemaHelperMixin, validationMixin],
     handleChange(changedProp, value) {
-        this.props.onChange(changedProp, value);
-    },
-    handleSpeciesChange(changedProp, value) {
-        this.props.onChange('Species', { [changedProp]: value });
+        let updatedModel = update(this.props.model, {
+            $merge: {
+                [changedProp]: value
+            }
+        });
+
+        this.props.onChange(updatedModel);
     },
     render() {
         return (
@@ -52,7 +60,7 @@ let PetEditor = React.createClass({
                     name="Age" />
                 <fieldset>
                     <SpeciesEditor {...this.props}
-                        onChange={this.handleSpeciesChange}
+                        onChange={this.handleChange.bind(this, 'Species')}
                         modelState={this.getModelState('Species')}
                         model={this.props.model.Species}
                         prefix={this.joinPrefixes(this.props.prefix, 'Species')}
@@ -93,12 +101,12 @@ export let SomeForm = React.createClass({
             model: updatedModel
         });
     },
-    handlePetChange(petIndex, changedProp, newValue) {
+    handlePetChange(petIndex, newValue) {
 
         let updatedModel = update(this.state.model, {
             Pets: {
                 [petIndex]: {
-                    $merge: { [changedProp]: newValue }
+                    $set: newValue
                 }
             }
         });
@@ -118,9 +126,9 @@ export let SomeForm = React.createClass({
                 schema={schemas.Pet} />);
     },
     handleSubmit(e) {
-        if (!this.state.valid) {
+        // if (!this.state.valid) {
             e.preventDefault();
-        }
+        // }
 
         console.log(this.state.model);
     },
@@ -144,7 +152,7 @@ export let SomeForm = React.createClass({
                     </fieldset>
                     <ValidationMessage {...this.state} name="Pets" />
                 </fieldset>
-                <button type="submit" disabled={!this.state.valid}>Submeter</button>
+                <button type="submit">Submeter</button>
             </form>
         );
     }
