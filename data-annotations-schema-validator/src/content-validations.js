@@ -47,13 +47,7 @@ let contentValidations = {
     emailAddress(email) {
         if (isNullOrUndefined(email)) { return true; }
 
-        // TODO Probably just use a regexp to validate the value
-        // in case the browser doesn't support input[type=email].
-        // This is a nice way, though.
-        let input = document.createElement('input');
-        input.type = 'email';
-        input.value = email;
-        return input.validity.valid;
+        return /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b./i.test(email);
     }
 };
 
@@ -64,7 +58,7 @@ let contentValidations = {
  * @return {array} An array of errors. The array will be empty if no errors were found.
  */
 export function validateContent(val, validations = {}) {
-    var errors = [];
+    let errors = [];
 
     for (let validation in validations) {
         if (validations.hasOwnProperty(validation)) {

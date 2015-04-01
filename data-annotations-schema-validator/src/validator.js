@@ -10,8 +10,8 @@ import { validateType, extractType } from './type-validations';
 export let schemas = {};
 
 function validateProps(object, schema) {
-    var props = {},
-        valid = true;
+    let props = {};
+    let valid = true;
 
     for (let prop in schema) {
         if (schema.hasOwnProperty(prop)) {
@@ -27,12 +27,10 @@ function validateProps(object, schema) {
     return { valid, props };
 }
 
-class ValidationResult {
-    constructor() {
-        this.typeErrors = [];
-        this.validationErrors = [];
-        this.valid = true;
-    }
+function ValidationResult() {
+    this.typeErrors = [];
+    this.validationErrors = [];
+    this.valid = true;
 }
 
 function validateProp(value, itemType, validations) {
@@ -54,7 +52,9 @@ function validateProp(value, itemType, validations) {
         let isBase = isBaseType(type);
         result.itemErrors = [];
 
-        for (let item of value) {
+        for (let i = 0; i < value.length; i++) {
+            let item = value[i];
+
             if (isBase) {
                 if (!validateType(item, type)) {
                     result.typeErrors.push(`${item} is not of type ${type}.`);
@@ -117,12 +117,9 @@ export function loadSchema(schemaName, done) {
         let schemaToLoad = additionalSchemas.pop();
 
         if (schemas[schemaToLoad]) {
-            console.log(`${schemaToLoad} already loaded--returning early`);
             cb(null, schemaToLoad, schemas[schemaToLoad]);
             return;
         }
-
-        console.log(`Loading ${schemaToLoad}`);
 
         let xhr = new XMLHttpRequest();
 
@@ -152,7 +149,6 @@ export function loadSchema(schemaName, done) {
         }
 
         if (additionalSchemas.length === 0) {
-            console.log('Calling back...');
             done(null, schemas[schemaName]);
         } else {
             loadMoreSchemas(parseSchema);

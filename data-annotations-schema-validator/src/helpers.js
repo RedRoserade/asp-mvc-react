@@ -1,7 +1,5 @@
 'use strict';
 
-import _ from 'underscore';
-
 export function isNullOrUndefined(val) {
     return val === null || val === undefined;
 }
@@ -14,12 +12,4 @@ export function isNullOrUndefined(val) {
  */
 export function isBaseType(typeName) {
     return (/string|number|integer|array|date|enum/).test(typeName);
-}
-
-export function navigateSafely(f) {
-    try {
-        return f();
-    } catch (e) {
-        return null;
-    }
 }

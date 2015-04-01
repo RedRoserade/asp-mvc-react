@@ -1,0 +1,25 @@
+{
+  "name": "asp-mvc-react-helpers",
+  "version": "0.1.0",
+  "description": "A set of mixins and React components that aid in the creation of UIs in a similar fashion with ASP.NET MVC's HtmlHelper and DataAnnotations.",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react",
+    "validation",
+    "aspnet",
+    "aspnet-mvc"
+  ],
+  "author": "André Carvalho <afecarvalho@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^0.13.1"
+  },
+  "devDependencies": {
+    "babel": "^4.7.16",
+    "babel-eslint": "^2.0.2",
+    "eslint": "^0.18.0"
+  }
+}

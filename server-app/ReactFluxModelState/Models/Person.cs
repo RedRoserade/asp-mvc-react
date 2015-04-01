@@ -39,8 +39,6 @@ namespace ReactFluxModelState.Models
         public int Age { get; set; }
 
         public DateTime BirthDate { get; set; }
-
-
     }
 
     public class Species

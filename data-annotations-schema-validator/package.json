@@ -1,0 +1,28 @@
+{
+  "name": "data-annotations-schema-validator",
+  "version": "0.1.0",
+  "description": "A set of helpers that load and validate data models against an DataAnnotation-generated schema from .NET.",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "node ./run-babel.js tool/build",
+    "test": "echo \"I know I should test this\" && exit 1"
+  },
+  "keywords": [
+    "validation",
+    "schema",
+    "model validation",
+    ".net"
+  ],
+  "author": "André Carvalho <afecarvalho@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel": "^4.7.16",
+    "babel-eslint": "^2.0.2",
+    "child-process-promise": "^1.0.2",
+    "eslint": "^0.18.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RedRoserade/asp-mvc-react.git"
+  }
+}

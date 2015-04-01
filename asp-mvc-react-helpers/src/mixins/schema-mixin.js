@@ -1,10 +1,9 @@
 'use strict';
 
+import _ from 'underscore';
 import { validate, validateAsync, loadSchema } from 'validator';
-import * as _ from 'underscore';
-let React = window.React;
 
-export function schemaLoaderMixin(schemaName) {
+export function SchemaLoaderMixin(schemaName) {
     return {
         componentWillMount() {
             if (!this.schema) {
@@ -33,7 +32,11 @@ export function schemaLoaderMixin(schemaName) {
     };
 }
 
-export let schemaHelperMixin = {
+export let SchemaHelperMixin = {
+    /**
+     * Returns the label text for a prop.
+     * @param {string} name The name of the prop.
+     */
     labelFor(name) {
         var { schema } = this.state || this.props;
 
@@ -43,7 +46,6 @@ export let schemaHelperMixin = {
 
         return schema[name].label;
     },
-
     generateId(name) {
         return name.replace(/\s+/g, '_');
     },
@@ -75,5 +77,23 @@ export let schemaHelperMixin = {
     },
     joinPrefixes(...prefixes) {
         return prefixes.join('.');
+    },
+    fieldTypeFor(name) {
+        var { schema } = this.state || this.props;
+
+        if (!schema || !schema[name] || !schema[name].type) {
+            return '';
+        }
+
+        return schema[name].type;
+    },
+    getEnumValues(name) {
+        var { schema } = this.state || this.props;
+
+        if (!schema || !schema[name] || !schema[name].enumValues) {
+            return [];
+        }
+
+        return schema[name].enumValues;
     }
 };

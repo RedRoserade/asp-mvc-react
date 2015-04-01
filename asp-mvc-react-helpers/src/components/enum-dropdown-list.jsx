@@ -3,27 +3,27 @@
  */
 'use strict';
 
-import { schemaHelperMixin } from './schema-mixin';
-import { validationMixin } from './validation-mixin';
-import _ from 'underscore';
-let React = window.React;
+import React from 'react';
 
-let EnumDropDownList = React.createClass({
-    mixins: [schemaHelperMixin, validationMixin],
+import { SchemaHelperMixin, ValidationMixin } from '../mixins/index';
+
+let EnumDropdownList = React.createClass({
+    mixins: [SchemaHelperMixin, ValidationMixin],
     handleChange(e) {
         this.props.onChange(e.target.value);
     },
     render() {
-        let { name, model, schema } = this.props;
+        let { name, model } = this.props;
 
         return (
             <select
+                className={this.props.className}
                 value={model[name]}
                 id={this.idFor(name)}
                 aria-invalid={!this.isValidField(name)}
                 onChange={this.handleChange}
                 name={this.nameFor(name)}>
-                {_.map(schema[name].enumValues, v =>
+                {this.getEnumValues(name).map(v =>
                     <option value={v.value} key={v.value}>
                         {v.text}
                     </option>)}
@@ -31,4 +31,4 @@ let EnumDropDownList = React.createClass({
         );
     }
 });
-export default EnumDropDownList;
+export default EnumDropdownList;

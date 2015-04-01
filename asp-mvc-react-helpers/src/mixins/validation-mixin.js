@@ -2,7 +2,7 @@
 
 import _ from 'underscore';
 
-export let validationMixin = {
+let ValidationMixin = {
     isValidField(name) {
         let { modelState } = this.state || this.props;
 
@@ -14,15 +14,13 @@ export let validationMixin = {
     },
 
     validationMessageFor(name) {
-        let { modelState/*, prefix*/ } = this.state || this.props;
+        let { modelState } = this.state || this.props;
 
-        // prefix = prefix ? prefix + '.' : '';
-
-        if (!modelState || !modelState[/*prefix + */name]) {
+        if (!modelState || !modelState[name]) {
             return [];
         }
 
-        let errors = modelState[/*prefix + */name];
+        let errors = modelState[name];
 
         return _.union(errors.typeErrors, errors.validationErrors);
     },
@@ -39,3 +37,4 @@ export let validationMixin = {
         return modelState[name].itemErrors || modelState[name].propertyErrors;
     }
 };
+export default ValidationMixin;
