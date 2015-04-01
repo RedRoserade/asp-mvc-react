@@ -1,6 +1,19 @@
 'use strict';
 
-import _ from 'underscore';
+/**
+ * Returns the union of all the arrays.
+ * @param {array} arrays
+ * @returns {array}
+ */
+function arrayUnion(...arrays) {
+    let result = [];
+
+    for (let i = 0; i < arrays.length; i++) {
+        result = result.concat(arrays[i] || []);
+    }
+
+    return result;
+}
 
 let ValidationMixin = {
     isValidField(name) {
@@ -12,7 +25,12 @@ let ValidationMixin = {
 
         return modelState[name].valid;
     },
-
+    /**
+     * Returns all the validation messages
+     * for the prop with the given name.
+     * @param {string} name
+     * @returns {array}
+     */
     validationMessageFor(name) {
         let { modelState } = this.state || this.props;
 
@@ -22,10 +40,12 @@ let ValidationMixin = {
 
         let errors = modelState[name];
 
-        return _.union(errors.typeErrors, errors.validationErrors);
+        return arrayUnion(errors.typeErrors, errors.validationErrors);
     },
     /**
-     * Returns the model state of a prop.
+     * Returns the model state of a prop, or an empty object
+     * If nothing was found.
+     *
      * @param {string} name The name of the prop.
      * @returns {object}
      */
@@ -34,7 +54,7 @@ let ValidationMixin = {
 
         if (!modelState || !modelState[name]) { return {}; }
 
-        return modelState[name].itemErrors || modelState[name].propertyErrors;
+        return modelState[name].itemErrors || modelState[name].propertyErrors || {};
     }
 };
 export default ValidationMixin;

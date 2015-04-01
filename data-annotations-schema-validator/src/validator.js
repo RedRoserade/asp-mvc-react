@@ -158,13 +158,7 @@ export function loadSchema(schemaName, done) {
     loadMoreSchemas(parseSchema);
 }
 
-/**
- * Validates an object.
- * @param {object} obj The object to validate.
- * @param {schemaName} schema The name of the schema that is will be used
- * @param {function} cb
- * to validate [value].
- */
+
 export function validate(obj, schema) {
     let result = {
         valid: true,
@@ -179,6 +173,13 @@ export function validate(obj, schema) {
     return result;
 }
 
+/**
+ * Validates an object.
+ * @param {object} obj The object to validate.
+ * @param {schemaName} schema The name of the schema that is will be used
+ * @param {function} cb
+ * to validate [value].
+ */
 export function validateAsync(obj, schemaName, cb) {
     loadSchema(schemaName, (err, schema) => {
         if (err) { cb(err); return; }

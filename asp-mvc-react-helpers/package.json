@@ -15,7 +15,8 @@
   "author": "André Carvalho <afecarvalho@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "react": "^0.13.1"
+    "react": "^0.13.1",
+    "data-annotations-schema-validator": "^0.1.0"
   },
   "devDependencies": {
     "babel": "^4.7.16",

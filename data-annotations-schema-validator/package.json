@@ -1,6 +1,6 @@
 {
   "name": "data-annotations-schema-validator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A set of helpers that load and validate data models against an DataAnnotation-generated schema from .NET.",
   "main": "lib/index.js",
   "scripts": {

@@ -6,7 +6,7 @@ let Form = React.createClass({
     render() {
         return (
             <form>
-
+                {this.props.children}
             </form>
         );
     }

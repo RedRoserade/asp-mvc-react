@@ -1,7 +1,6 @@
 'use strict';
 
-import _ from 'underscore';
-import { validate, validateAsync, loadSchema } from 'validator';
+import { validate, validateAsync, loadSchema } from 'data-annotations-schema-validator';
 
 export function SchemaLoaderMixin(schemaName) {
     return {
