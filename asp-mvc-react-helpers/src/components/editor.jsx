@@ -37,7 +37,7 @@ let Editor = React.createClass({
             <input
                 className={this.props.className}
                 value={model[name]}
-                type={getInputType(this.fieldTypeFor(name))}
+                type={this.props.type || getInputType(this.fieldTypeFor(name))}
                 onChange={this.handleChange}
                 id={this.idFor(name)}
                 aria-invalid={!this.isValidField(name)}

@@ -174,7 +174,7 @@ export function validate(obj, schema) {
 }
 
 /**
- * Validates an object.
+ * Validates an object asynchonously.
  * @param {object} obj The object to validate.
  * @param {schemaName} schema The name of the schema that is will be used
  * @param {function} cb

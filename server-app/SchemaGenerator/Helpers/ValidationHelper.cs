@@ -1,17 +1,15 @@
-﻿using ReactFluxModelState.Controllers;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using System.Web;
 
-namespace ReactFluxModelState.ValidationHelpers
+namespace SchemaGenerator.Helpers
 {
-    public static class Helpers
+	static class ValidationHelper
     {
-        public static string GetJavascriptPrototypeName(Type t)
+        public static string GetJavascriptType(Type t)
         {
             if (t.IsAssignableFrom(typeof(int)) ||
                 t.IsAssignableFrom(typeof(byte)) ||
@@ -53,12 +51,12 @@ namespace ReactFluxModelState.ValidationHelpers
             {
                 return string.Format("array<{0}>",
                     string.Join(",", t.GetGenericArguments()
-                        .Select(a => GetJavascriptPrototypeName(a))));
+                        .Select(a => GetJavascriptType(a))));
             }
 
             return t.Name;
         }
-
+		
         public static Tuple<string, object> FormatValidation(PropertyInfo p, ValidationAttribute attribute)
         {
             if (attribute is DataTypeAttribute)
@@ -142,31 +140,6 @@ namespace ReactFluxModelState.ValidationHelpers
             }
 
             throw new Exception();
-        }
-
-        public static string GetDisplayName(MemberInfo p)
-        {
-            var display = p.GetCustomAttribute<DisplayAttribute>();
-
-            if (display == null)
-            {
-                return p.Name;
-            }
-
-            return display.GetName();
-        }
-
-        internal static string GetPlaceholder(PropertyInfo p)
-        {
-            var display = p.GetCustomAttribute<DisplayAttribute>();
-
-            if (display == null)
-            {
-                return "";
-            }
-
-            return display.GetPrompt() ?? "";
-
         }
     }
 }

@@ -2,11 +2,10 @@
 
 import React from 'react';
 
-import schemaHelperMixin from './schema-mixin';
-import validationMixin from './validation-mixin';
+import { SchemaHelperMixin, ValidationMixin } from '../mixins/index';
 
 let ValidationMessage = React.createClass({
-    mixins: [schemaHelperMixin, validationMixin],
+    mixins: [SchemaHelperMixin, ValidationMixin],
     render() {
         let { name } = this.props;
 

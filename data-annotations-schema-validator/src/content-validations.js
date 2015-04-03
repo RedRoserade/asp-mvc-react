@@ -2,11 +2,12 @@
 
 import { isNullOrUndefined } from './helpers';
 
-/**
- * Tests if the value is not null, undefined,
- * or, if spec.allowEmpty == false, empty strings or empty arrays.
- */
+
 let contentValidations = {
+    /**
+     * Tests if the value is not null, undefined,
+     * or, if spec.allowEmpty == false, empty strings or empty arrays.
+     */
     required(val, spec = { allowEmpty: false }) {
         if (isNullOrUndefined(val)) { return false; }
 
@@ -28,6 +29,7 @@ let contentValidations = {
     /**
      * Tests if the value (string or array or anything with a 'length' prop)
      * is of, at most, spec.length long.
+     * @param {object} spec
      */
     maxLength(val, spec) {
         return isNullOrUndefined(val) || val.length <= spec.length;

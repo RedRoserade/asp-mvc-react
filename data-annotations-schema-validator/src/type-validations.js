@@ -41,7 +41,7 @@ let typeValidators = {
 
 export function validateType(val, type) {
     // Remove generics from the picture.
-    type = type.split('<')[0];
+    type = extractType(type);
 
     return typeValidators[type](val);
 }

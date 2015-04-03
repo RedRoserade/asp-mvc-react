@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Marked the "Generate" method as public.</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>DataAnnotations Validation</tags>
+  </metadata>
+</package>
