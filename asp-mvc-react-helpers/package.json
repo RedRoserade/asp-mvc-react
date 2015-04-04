@@ -4,7 +4,8 @@
   "description": "A set of mixins and React components that aid in the creation of UIs in a similar fashion with ASP.NET MVC's HtmlHelper and DataAnnotations.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node ./run-babel.js tool/build",
+    "test": "echo \"I know I should test this\" && exit 1"
   },
   "keywords": [
     "react",
@@ -23,6 +24,11 @@
   "devDependencies": {
     "babel": "^4.7.16",
     "babel-eslint": "^2.0.2",
+    "child-process-promise": "^1.0.2",
     "eslint": "^0.18.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RedRoserade/asp-mvc-react.git"
   }
 }

@@ -20,15 +20,35 @@ function getInputType(name) {
     return 'text';
 }
 
+function parseInputValue(type, value) {
+    switch (type) {
+        case 'integer':
+            return parseInt(value, 10);
+        case 'number':
+            return parseFloat(value);
+        case 'date':
+        case 'datetime':
+            // TODO Try to use moment.
+            return new Date(value);
+    }
+
+    // Return the value as a string by default.
+    return value;
+}
+
 let Editor = React.createClass({
     mixins: [SchemaHelperMixin, ValidationMixin],
+    getValue() {
+        return parseInputValue(
+            getInputType(this.fieldTypeFor(name)), this.getDOMNode().value);
+    },
     getDefaultProps() {
-        return {
-            onChange() { /* No-op */ }
-        };
+        return {};
     },
     handleChange(e) {
-        this.props.onChange(e.target.value);
+        if (typeof (this.props.onChange === 'function')) {
+            this.props.onChange(e.target.value);
+        }
     },
     render() {
         let { name, model } = this.props;
@@ -36,7 +56,7 @@ let Editor = React.createClass({
         return (
             <input
                 className={this.props.className}
-                value={model[name]}
+                value={this.props.value || model[name]}
                 type={this.props.type || getInputType(this.fieldTypeFor(name))}
                 onChange={this.handleChange}
                 id={this.idFor(name)}

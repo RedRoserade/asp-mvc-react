@@ -1,3 +1,6 @@
 node_modules/
 tool/
+src/
 .gitignore
+register-babel.js
+run-babel.js
