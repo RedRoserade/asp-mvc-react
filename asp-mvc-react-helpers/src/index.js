@@ -1,8 +1,8 @@
 
-import components from './components/index';
-import mixins from './mixins/index';
+import components from './components';
+import mixins from './mixins';
 
-export {
+export default {
     components,
     mixins
 };

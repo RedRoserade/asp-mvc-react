@@ -1,7 +1,3 @@
-import { loadSchema, validate, validateAsync } from './validator';
+import Validator from './validator';
 
-export {
-    loadSchema,
-    validate,
-    validateAsync
-}
+export default Validator;

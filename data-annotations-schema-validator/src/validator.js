@@ -1,85 +1,9 @@
 'use strict';
 
-import { isBaseType, isNullOrUndefined, navigateSafely } from './helpers';
-import { validateContent } from './content-validations';
+import { isBaseType, isNullOrUndefined } from './helpers';
+import validateContent from './content-validations';
 import { validateType, extractType } from './type-validations';
-
-/**
- * Schema cache.
- */
-export let schemas = {};
-
-function validateProps(object, schema) {
-    let props = {};
-    let valid = true;
-
-    for (let prop in schema) {
-        if (schema.hasOwnProperty(prop)) {
-            let { type, validations } = schema[prop];
-
-            let result = validateProp(object[prop], type, validations);
-
-            valid = valid && result.valid;
-
-            props[prop] = result;
-        }
-    }
-    return { valid, props };
-}
-
-function ValidationResult() {
-    this.typeErrors = [];
-    this.validationErrors = [];
-    this.valid = true;
-}
-
-function validateProp(value, itemType, validations) {
-
-    let result = new ValidationResult();
-
-    let type = extractType(itemType);
-
-    // Validate the type of the prop if the prop type is a base type.
-    // TODO Try to get this working with non-base types (prototypes?)
-    if ((itemType.indexOf("array") !== -1 && !Array.isArray(value)) &&
-        (isBaseType(type) && !validateType(value, type))) {
-        result.typeErrors.push(`${value} is not of type ${type}.`);
-    }
-
-    result.validationErrors = validateContent(value, validations);
-
-    if (Array.isArray(value)) {
-        let isBase = isBaseType(type);
-        result.itemErrors = [];
-
-        for (let i = 0; i < value.length; i++) {
-            let item = value[i];
-
-            if (isBase) {
-                if (!validateType(item, type)) {
-                    result.typeErrors.push(`${item} is not of type ${type}.`);
-                }
-
-                result.itemErrors.push(validateContent(value, validations));
-            } else {
-                let contentValidation = validateProps(item, schemas[type]);
-                result.valid = result.valid && contentValidation.valid;
-                result.itemErrors.push(contentValidation.props);
-            }
-        }
-    }
-    else if (!isBaseType(type) && !isNullOrUndefined(value)) {
-        let contentValidation = validateProps(value, schemas[type]);
-        result.valid = result.valid && contentValidation.valid;
-        result.propertyErrors = contentValidation.props;
-    }
-
-    result.valid = result.valid &&
-        result.typeErrors.length === 0 &&
-        result.validationErrors.length === 0;
-
-    return result;
-}
+import ValidationResult from './validation-result';
 
 /**
  * Parses a schema and returns any additional
@@ -88,105 +12,203 @@ function validateProp(value, itemType, validations) {
  * @return {array}
  */
 function findAdditionalSchemas(schema) {
-    let additionalSchemasToLoad = [];
+  let additionalSchemasToLoad = [];
 
-    for (let prop in schema) {
-        if (schema.hasOwnProperty(prop)) {
-            let typeName = schema[prop].type;
+  for (let prop in schema) {
+    if (schema.hasOwnProperty(prop)) {
+      let typeName = schema[prop].type;
 
-            if (!isBaseType(extractType(typeName))) {
-                additionalSchemasToLoad.push(extractType(schema[prop].type));
-            } else if (!isBaseType(typeName)) {
-                additionalSchemasToLoad.push(typeName);
-            }
-        }
+      if (!isBaseType(extractType(typeName))) {
+        additionalSchemasToLoad.push(extractType(schema[prop].type));
+      } else if (!isBaseType(typeName)) {
+        additionalSchemasToLoad.push(typeName);
+      }
     }
+  }
 
-    return additionalSchemasToLoad;
+  return additionalSchemasToLoad;
 }
 
-/**
- * @param {string} schemaName
- * @param {function} cb
- */
-export function loadSchema(schemaName, done) {
+export default class Validator {
+
+  constructor(spec = { baseUrl: '', urlFormat: null }) {
+    this.schemas = {};
+
+    this.baseUrl = spec.baseUrl;
+
+    this.urlFormat = spec.urlFormat || (schemaName) => {
+      return `${this.baseUrl}/${schemaName}`;
+    };
+  }
+
+  /**
+   * Adds a schema to this validator.
+   * @param {string} name The name of the schema.
+   * @param {object} shema The schema to add.
+   */
+  addSchema(name, schema) {
+    if (typeof name !== 'string') { throw new Error('"name" must be a string.'); }
+    if (!schema || typeof schema !== 'object') { throw new Error('"schema" must be a object.'); }
+
+    this.schemas[name] = schema;
+  }
+
+  /**
+   * Loads a schema asynchronously.
+   * The schema is then parsed to check if any additional schemas
+   * need to be loaded from the server.
+   *
+   * @param {string} name The name of the schema to load.
+   * @param {function} done A function that is called with the loaded schema,
+   * or with any error that occured during the fetch process.
+   */
+  loadSchema(schemaName, done) {
+    if (!this.baseUrl && !this.urlFormat) {
+      throw new TypeError('Either a baseUrl string or urlFormat function must be specified.');
+    }
+
     let additionalSchemas = [schemaName];
 
     let loadMoreSchemas = (cb) => {
 
-        let schemaToLoad = additionalSchemas.pop();
+      let schemaToLoad = additionalSchemas.pop();
 
-        if (schemas[schemaToLoad]) {
-            cb(null, schemaToLoad, schemas[schemaToLoad]);
-            return;
+      if (this.schemas[schemaToLoad]) {
+        cb(null, schemaToLoad, this.schemas[schemaToLoad]);
+        return;
+      }
+
+      let xhr = new XMLHttpRequest();
+
+      xhr.open('get', this.urlFormat(schemaName));
+      xhr.setRequestHeader('Accept', 'application/json');
+
+      xhr.onload = (e) => {
+        if (e.target.status === 200) {
+          cb(null, schemaToLoad, JSON.parse(e.target.responseText));
+        } else {
+          cb(new Error(`Unable to load ${schemaToLoad}.`), null);
         }
+      };
 
-        let xhr = new XMLHttpRequest();
-
-        xhr.open('get', `http://localhost:2106/validation/${schemaToLoad}`);
-        xhr.setRequestHeader('Accept', 'application/json');
-
-        xhr.addEventListener('load', (e) => {
-            if (e.target.status === 200) {
-                cb(null, schemaToLoad, JSON.parse(e.target.responseText));
-            } else {
-                cb(new Error(`Schema ${schemaToLoad} not found.`), null);
-            }
-        });
-
-        xhr.addEventListener('error', cb);
-        xhr.send();
+      xhr.addEventListener('error', cb);
+      xhr.send();
     };
 
     let parseSchema = (err, loadedSchema, schema) => {
-        if (err) { throw err; }
+      if (err) { throw err; }
 
-        // Skip the additional load steps if the schema was
-        // already loaded, because we load schemas ourselves.
-        if (!schemas[loadedSchema]) {
-            schemas[loadedSchema] = schema;
-            additionalSchemas = additionalSchemas.concat(findAdditionalSchemas(schema));
-        }
+      if (!this.schemas[loadedSchema]) {
+        this.schemas[loadedSchema] = schema;
+        additionalSchemas = additionalSchemas.concat(findAdditionalSchemas(schema));
+      }
 
-        if (additionalSchemas.length === 0) {
-            done(null, schemas[schemaName]);
-        } else {
-            loadMoreSchemas(parseSchema);
-        }
+      if (!additionalSchemas.length) {
+        done(null, this.schemas[schemaName]);
+      } else {
+        loadMoreSchemas(parseSchema);
+      }
     };
 
     loadMoreSchemas(parseSchema);
-}
+  }
 
+  validate(object, schema) {
 
-export function validate(obj, schema) {
-    let result = {
-        valid: true,
-        modelState: {}
+    const result = {
+      isValid: true,
+      modelState: {}
     };
 
-    let validation = validateProps(obj, schema);
+    const validation = this.validateObject(object,
+      typeof (schema) === 'string' ? this.schemas[schema] :
+      schema);
 
     result.modelState = validation.props;
-    result.valid = validation.valid;
+    result.isValid = validation.isValid;
 
     return result;
-}
+  }
 
-/**
- * Validates an object asynchonously.
- * @param {object} obj The object to validate.
- * @param {schemaName} schema The name of the schema that is will be used
- * @param {function} cb
- * to validate [value].
- */
-export function validateAsync(obj, schemaName, cb) {
-    loadSchema(schemaName, (err, schema) => {
-        if (err) { cb(err); return; }
-        try {
-            cb(null, validate(obj, schema));
-        } catch (e) {
-            cb(e);
-        }
+  /**
+   * Asynchonously validates an object.
+   * This will attempt to load any necessary schemas,
+   * and then calls #validate with the loaded schema.
+   *
+   * @param {any} object The object to validate.
+   * @param {string} schemaName The name of the schema to valdiate.
+   * @param {function} cb A function that is called
+   * with the validation result.
+   */
+  validateAsync(object, schemaName, cb) {
+    this.loadSchema(schemaName, (err, schema) => {
+      if (err) { cb(err); return; }
+      try {
+        cb(null, this.validate(object, schema));
+      } catch (e) {
+        cb(e);
+      }
     });
+  }
+
+  validateProp(value, itemType, validations) {
+
+    let result = new ValidationResult();
+    let type = extractType(itemType);
+
+    if (itemType.indexOf('array') !== -1 && !Array.isArray(value)) {
+      result.errors.push(`${value} is not an array.`);
+    } else if (isBaseType(itemType) && !validateType(value, itemType)) {
+      result.errors.push(`${value} is not of type ${type}.`);
+    }
+
+    result.addErrors(validateContent(value, validations));
+
+    if (Array.isArray(value)) {
+      let isBase = isBaseType(type);
+      result.itemErrors = [];
+
+      for (let i = 0; i < value.length; i++) {
+        let item = value[i];
+        let itemResult = new ValidationResult();
+
+        if (isBase) {
+          if (!validateType(item, type)) {
+            itemResult.errors.push(`${item} is not a ${type}.`);
+          }
+        } else {
+          let contentValidation = this.validateObject(item, this.schemas[type]);
+
+          itemResult.valid = result.valid && contentValidation.valid;
+          itemResult.itemErrors.push(contentValidation.props);
+        }
+
+        result.itemErrors.push(itemResult);
+      }
+    }
+    else if (!isBaseType(type) && !isNullOrUndefined(value)) {
+      let contentValidation = this.validateObject(value, this.schemas[type]);
+      result.valid = result.valid && contentValidation.valid;
+      result.itemErrors = contentValidation.props;
+    }
+
+    return result;
+  }
+
+  validateObject(object, schema) {
+    let props = {};
+    let isValid = true;
+
+    for (let prop in schema) {
+      if (schema.hasOwnProperty(prop)) {
+        let { type, validations } = schema[prop];
+
+        let result = this.validateProp(object[prop], type, validations);
+
+        props[prop] = result;
+        isValid = isValid && result.isValid;
+      }
+    }
+    return { isValid, props };
+  }
 }

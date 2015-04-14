@@ -59,7 +59,7 @@ let contentValidations = {
  * @param {object} validations
  * @return {array} An array of errors. The array will be empty if no errors were found.
  */
-export function validateContent(val, validations = {}) {
+export default function validateContent(val, validations = {}) {
     let errors = [];
 
     for (let validation in validations) {
